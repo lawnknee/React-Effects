@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import "./Cards.js"
+import Cards from "./Cards.js"
 
 function App() {
   return (
