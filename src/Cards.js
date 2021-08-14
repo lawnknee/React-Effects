@@ -4,12 +4,23 @@ import Card from "./Card";
 
 const API_BASE_URL = "http://deckofcardsapi.com/api/deck";
 
+/** Cards Component makes API requests to Deckk of Cards API.
+ *  Allows player to draw one card at a time from the deck.
+ * 
+ *  States:
+ *  - deckId
+ *  - cards
+ *  - shuffling
+ * 
+ *  Cards -> Card
+ */
 function Cards() {
   const [deckId, setDeckId] = useState("");
   const [cards, setCards] = useState([]);
-  const [drawn, setDrawn] = useState(false);
-  
-  console.log("CARDS",cards);
+  // const [drawn, setDrawn] = useState(false);
+  const [shuffling, setShuffling] = useState(false);
+
+  console.log("CARDS", cards);
 
   useEffect(function getDeck() {
     async function getDeckData() {
@@ -27,11 +38,11 @@ function Cards() {
   //         ...currCards,
   //         resp.data.cards[0]
   //       ]));
-       
+
   //       if(resp.data.remaining === 0) {
   //         alert("Error: No Cards Remaining");
   //       }
-        
+
   //     } catch(err) {}
   //   }
 
@@ -43,40 +54,43 @@ function Cards() {
 
   async function handleClick() {
     const resp = await axios.get(`${API_BASE_URL}/${deckId}/draw?count=13`);
-      setCards( currCards => ([
-        ...currCards,
-        resp.data.cards[0]
-    ]));
+    setCards((currCards) => [...currCards, resp.data.cards[0]]);
   }
 
   useEffect(function shuffleCard() {
-    async function shuffle() {
-      const resp = await axios.get(`${API_BASE_URL}/${deckId}/shuffle`);
-    }
-  
+      async function shuffle() {
+        console.log("SHUFFLING");
+        await axios.get(`${API_BASE_URL}/${deckId}/shuffle`);
+      }
 
-    if() {
-      shuffleCard();
-    }
+      if (shuffling) {
+        shuffle();
+        setShuffling(false);
+      }
+    }, [shuffling, deckId]
+  );
 
-  }, [, deckId]);
-
-
-  if(cards.length === 4) {
-
+  if (cards.length > 4) {
+    setShuffling(true);
+    setCards([]);
   }
 
   return (
     <div className="Cards">
-      <button onClick={handleClick}>GIMME A CARD!</button>
+      <button onClick={handleClick} disabled={shuffling}>
+        {console.log("BUTTON", shuffling)}
+        GIMME A CARD!
+      </button>
       <div className="Cards-card">
-        {cards.length > 0
-          ? <Card card={cards[cards.length - 1]} key={cards[cards.length - 1].code} /> 
-          : null
-        }
+        {cards.length > 0 && cards.length <= 4 ? (
+          <Card
+            card={cards[cards.length - 1]}
+            key={cards[cards.length - 1].code}
+          />
+        ) : null}
       </div>
     </div>
-  )
+  );
 }
 
 export default Cards;
